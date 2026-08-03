@@ -63,14 +63,13 @@ mypage_page = st.Page("app_pages/08_mypage.py", title="My Page", icon="📥")
 if st.session_state.loginout == "login":
     pages = [
         home_page,
-        weather_page,
+        mypage_page,
         product_management_page,
         # product_create_page,
         # product_select_page,
-        mypage_page,
     ]
 else:
-    pages = [home_page, login_page, signup_page, health_page]
+    pages = [home_page, login_page, signup_page, health_page, weather_page,]
 
 
 navigation = st.navigation(pages, position="hidden")
@@ -79,15 +78,15 @@ with st.sidebar:
     st.page_link(home_page)
 
     if st.session_state.loginout == "login":
-        st.button("LOGOUT", on_click=logout, use_container_width=True)
-        st.page_link(weather_page)
+        st.page_link(mypage_page)
         st.page_link(product_management_page)
+        st.button("LOGOUT", on_click=logout, use_container_width=True)
         # st.page_link(product_create_page)
         # st.page_link(product_select_page)
-        st.page_link(mypage_page)
     else:
         st.page_link(login_page)
         st.page_link(signup_page)
         st.page_link(health_page)
+        st.page_link(weather_page)
 
 navigation.run()

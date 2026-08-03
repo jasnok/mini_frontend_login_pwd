@@ -12,8 +12,7 @@ if not is_logged_in():
         submitted = st.form_submit_button("LOGIN")
 
     if submitted:
-        with st.spinner("로그인 중..."):
-            login(login_id, login_pwd)
+        login(login_id, login_pwd)
 
 else:
     st.success("로그인되었습니다.")
