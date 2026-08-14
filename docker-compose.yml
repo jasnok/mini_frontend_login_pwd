@@ -1,0 +1,53 @@
+services:
+  # pgvector PostgreSQL 데이터베이스
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: agent_postgres_db
+    environment:
+      POSTGRES_DB: agent_db
+      POSTGRES_USER: agent_user
+      POSTGRES_PASSWORD: agent_pwd
+    ports:
+      - "5433:5432"
+    volumes:
+      # SQL 스크립트 자동 실행 (초기화)
+      - ./backend_sql/sql:/docker-entrypoint-initdb.d
+      # 데이터 영속성
+      - aidevs-pgvector-data:/var/lib/postgresql/data
+    networks:
+      - aidevs-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U agent_user -d agent_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI 백엔드
+  backend:
+    build:
+      context: ./backend_sql
+      dockerfile: Dockerfile
+    container_name: agent_backend_api
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: agent_user
+      DB_PASSWORD: agent_pwd
+      DB_NAME: agent_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - aidevs-network
+    volumes:
+      # 개발 편의: 소스 코드 핫 리로드
+      - ./backend_sql/app:/app/app
+
+networks:
+  aidevs-network:
+    driver: bridge
+
+volumes:
+  aidevs-pgvector-data:
